@@ -1,0 +1,37 @@
+# 模块 8.3：博客 API systemd 服务文件
+# 保存为：/etc/systemd/system/blog-api.service
+# 然后执行：sudo systemctl daemon-reload && sudo systemctl enable --now blog-api
+
+[Unit]
+Description=Blog API (FastAPI)
+After=network.target
+# 在网络启动之后再启动此服务
+
+[Service]
+Type=simple
+User=ubuntu
+# 以 ubuntu 用户身份运行（不要用 root）
+
+WorkingDirectory=/home/ubuntu/blog/backend
+# 工作目录
+
+Environment="PATH=/home/ubuntu/blog/backend/.venv/bin:/usr/bin"
+# 指定 Python 虚拟环境路径
+
+EnvironmentFile=/home/ubuntu/blog/backend/.env
+# 从 .env 文件加载环境变量（数据库地址、密钥等）
+
+ExecStart=/home/ubuntu/blog/backend/.venv/bin/uvicorn main:app --host 0.0.0.0 --port 8000
+# 启动命令——必须用虚拟环境里 uvicorn 的完整路径
+# --host 0.0.0.0 允许外部访问
+# --port 8000 监听端口
+
+Restart=always
+# 程序崩溃 → 自动重启
+
+RestartSec=3
+# 崩溃后等 3 秒再重启
+
+[Install]
+WantedBy=multi-user.target
+# 系统进入多用户模式时启动（即开机自启）
